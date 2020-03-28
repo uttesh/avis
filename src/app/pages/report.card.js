@@ -12,11 +12,15 @@ let reportMsg =
 ];
 
 
-exports.getReportPanel = (userData) => {
+exports.getReportPanel = (userData,userIdList) => {
   userDataList = [];
   userDataList.push(['User','Total tokens','Submitted','Missed'])
-  userData.forEach(element => {
+  userIdList.forEach(item => {
+    console.log('item')
+    let element = userData[item];
+    if(element){
     userDataList.push([element.user.name,element.totalCheck,element.checkedCount,element.missedCount])
+    }
   });
   let reportTable = table(userDataList);
   console.log(reportTable);

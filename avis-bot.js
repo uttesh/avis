@@ -105,7 +105,7 @@ app.event('message', (message, body) => {
             channel: data[1],
             text: ':+1:',
             as_user: true,
-            blocks: reportPanel.getReportPanel(usersStore)
+            blocks: reportPanel.getReportPanel(usersStore,userIdList)
           });
         } else {
           usersStore[data[1]].missedCount = usersStore[data[1]].totalCheck - usersStore[data[1]].checkedCount;
