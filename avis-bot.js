@@ -29,12 +29,17 @@ function getRandomText(user){
 
 async function sendCheck(user){
   try {
+    usersStore[user['id']].totalCheck = usersStore[user['id']].totalCheck + 1;
+    console.log('user check total count :::',usersStore[user['id']].totalCheck)
+    console.log('user checked count :::',usersStore[user['id']].checkedCount)
+    console.log('user missed count :::',usersStore[user['id']].missedCount)
+    let tknMeesage = getRandomText(user['id']);
     app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: user['id'],
       text: 'Routine Check Please reply the below message :)',
       as_user: true,
-      blocks: routineCheck.getCheckTaskRequestButton(user,getRandomText(user['id']))
+      blocks: routineCheck.getCheckTaskRequestButton(user,tknMeesage)
     });
   }
   catch (error) {
@@ -67,7 +72,7 @@ function saveUsers(usersArray) {
   usersArray.forEach(function(user){
     if(!user["deleted"] && !user["is_bot"]){
     userIdList.push(user["id"]);
-    usersStore[user["id"]] = user
+    usersStore[user["id"]] = {user:user,totalCheck:0,checkedCount:0,missedCount:0,tokenMessages:[]}
     }
   });
 }
@@ -79,31 +84,48 @@ app.error((error) => {
 
 app.event('message', (message, body) => {
   if (!message.subtype && message.payload.text.indexOf('avis:') >= 0) {
-    console.log('replied message :::',message.payload.text)
+    console.log('replied message :::', message.payload.text);
     let data = message.payload.text.split(":");
-    console.log('data :::',message.payload.text)
-    let flag = repliedInTime(data[2]);
-    try {
-      if(flag){
-        app.client.chat.postMessage({
-          token: process.env.SLACK_BOT_TOKEN,
-          channel: data[1],
-          text: ':+1:',
-          as_user: true
-        });
-      }else{
-        app.client.chat.postMessage({
-          token: process.env.SLACK_BOT_TOKEN,
-          channel: data[1],
-          text: ':hourglass_flowing_sand: late reply.',
-          as_user: true
-        });        
-      }
+    console.log('data :::', message.payload.text)
+    let tknMsg =  message.payload.text.replace(/```/g,'');
+    console.log('data :::', message.payload.text)
+    console.log('tknMsg :::', tknMsg)
+    console.log('tknMsg msg exists in the list :::', usersStore[data[1]].tokenMessages.indexOf(tknMsg))
+    if (usersStore[data[1]].tokenMessages.indexOf(tknMsg) == -1) {
+      let flag = repliedInTime(data[2]);
+      usersStore[data[1]].tokenMessages.push(tknMsg);
+      console.log(usersStore[data[1]].tokenMessages);
+      try {
+        if (flag) {
+          usersStore[data[1]].checkedCount = usersStore[data[1]].checkedCount + 1;
+          usersStore[data[1]].missedCount = usersStore[data[1]].totalCheck - usersStore[data[1]].checkedCount;
+          app.client.chat.postMessage({
+            token: process.env.SLACK_BOT_TOKEN,
+            channel: data[1],
+            text: ':+1:',
+            as_user: true
+          });
+        } else {
+          usersStore[data[1]].missedCount = usersStore[data[1]].totalCheck - usersStore[data[1]].checkedCount;
+          app.client.chat.postMessage({
+            token: process.env.SLACK_BOT_TOKEN,
+            channel: data[1],
+            text: ':hourglass_flowing_sand: late reply. Token expired',
+            as_user: true
+          });
+        }
 
+      } catch (error) {
+        console.error(error);
+      }
+    }else{
+      app.client.chat.postMessage({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: data[1],
+        text: ':interrobang: This token already submitted. I am little smart :yum: !!!!',
+        as_user: true
+      });
     }
-    catch (error) {
-      console.error(error);
-    } 
   }
 });
 
@@ -129,7 +151,7 @@ async function scheduleTask(){
     console.log('running a task every two minutes');
     userIdList.forEach(userId =>{
       if(userId === 'U1FAMB9QR'){
-        let user = usersStore[userId];
+        let user = usersStore[userId].user;
         sendCheck(user);
       }
      
@@ -146,7 +168,5 @@ async function scheduleTask(){
   // After the app starts, fetch users and put them in a simple, in-memory cache
   fetchUsers();
   scheduleTask();
-
-
 })();
 

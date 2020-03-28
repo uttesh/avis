@@ -22,6 +22,6 @@ let CheckListButton =
 
 exports.getCheckTaskRequestButton = (user,msg) => {
   CheckListButton[0].text.text = 'Hello! '+ user['real_name'] +', Please reply the below token message to AVIS in 5 minutes';
-  CheckListButton[1].fields[0].text = '*Token Messge*\n *```'+msg+'```*';
+  CheckListButton[1].fields[0].text = '*Token Message*\n *```'+msg+'```*';
   return CheckListButton;
 }
