@@ -2,6 +2,7 @@ const { App } = require('@slack/bolt');
 const Constants = require('./src/app/constants')
 const cron = require('node-cron');
 const routineCheck = require('./src/app/pages/routine_check');
+const reportPanel = require('./src/app/pages/report.card');
 const crypto = require("crypto");
 
 const app = new App({
@@ -103,7 +104,8 @@ app.event('message', (message, body) => {
             token: process.env.SLACK_BOT_TOKEN,
             channel: data[1],
             text: ':+1:',
-            as_user: true
+            as_user: true,
+            blocks: reportPanel.getReportPanel(usersStore)
           });
         } else {
           usersStore[data[1]].missedCount = usersStore[data[1]].totalCheck - usersStore[data[1]].checkedCount;
@@ -146,17 +148,96 @@ function repliedInTime(sentTime) {
   return true;
 }
 
-async function scheduleTask(){
+function formatAMPM(date) {
+  var currentTime = new Date();
+  var currentOffset = currentTime.getTimezoneOffset();
+  var ISTOffset = 330;   // IST offset UTC +5:30 
+  var ISTTime = new Date(currentTime.getTime() + (ISTOffset + currentOffset)*60000);
+// ISTTime now represents the time in IST coordinates
+  var hours = ISTTime.getHours();
+  var minutes = ISTTime.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+  var strTime = hours + ':' + minutes + ':' + ampm;
+  return strTime;
+}
+
+async function scheduleTask() {
   cron.schedule('*/2 * * * *', () => {
+    let today = new Date();
     console.log('running a task every two minutes');
-    userIdList.forEach(userId =>{
-      if(userId === 'U1FAMB9QR'){
+    console.log('current time: ',formatAMPM(today))
+    console.log('day of the week : ',today.getDay())
+    let currentTime = formatAMPM(today).split(':');
+    let openingDays = [ 1, 2, 3, 4 , 5 ];
+    userIdList.forEach(userId => {
+      if (userId === 'U1FAMB9QR') {
         let user = usersStore[userId].user;
         sendCheck(user);
       }
-     
     });
+  //   if(openingDays.includes( today.getDay() )){
+  //   if (workingTime(currentTime)) {
+  //     userIdList.forEach(userId => {
+  //       if (userId === 'U1FAMB9QR') {
+  //         let user = usersStore[userId].user;
+  //         sendCheck(user);
+  //       }
+  //     });
+  //   } else {
+  //     console.log('its not working hour !!!!');
+  //   }
+  // }else {
+  //   console.log('its Weekend !!!!');
+  // }
   });
+}
+
+function isReportTime(currentTime){
+  console.log('currentTime :: ',currentTime)
+  ampm = currentTime[2];
+  hour  = currentTime[0]
+  minute = currentTime[1];
+  if(ampm == 'pm' && hour == 6 && minute >=30){
+    return true;
+  }
+}
+
+/* 
+  Ignore the below logic..its hurry code
+*/
+function workingTime(currentTime){
+  console.log('currentTime :: ',currentTime)
+  ampm = currentTime[2];
+  hour  = currentTime[0]
+  minute = currentTime[1];
+  if(ampm == 'am'){
+    if(hour == 9){
+      if(minute >=30){
+        return true;
+      }
+    }
+    if(hour > 9 && hour < 12){
+      return true;
+    }
+  }
+  if(ampm == 'pm'){
+    if(hour > 12 || hour <= 1){
+      return true;
+    }
+    if(hour >=1 && hour <=2){
+      console.log('its lunch break :::')
+    }
+    if(hour >= 2 || hour <= 6){
+      return true;
+    }
+    if(hour == 6 && minute <=30){
+      return true;
+    }
+  }
+  return false;
 }
 
 // Start your app
