@@ -52,6 +52,7 @@ async function sendCheck(user){
 // You probably want to use a database to store any user information ;)
 let usersStore = {};
 let userIdList = [];
+let publishedToken = [];
 
 // Fetch users using the users.list method
 async function fetchUsers() {
@@ -71,6 +72,10 @@ async function fetchUsers() {
 
 function saveUsers(usersArray) {
   usersArray.forEach(function(user){
+    console.log('user.name :: ',user.name)
+    if(user.name==='avis_status'){
+      console.log('user :: ',user)
+    }
     if(!user["deleted"] && !user["is_bot"]){
     userIdList.push(user["id"]);
     usersStore[user["id"]] = {user:user,totalCheck:0,checkedCount:0,missedCount:0,tokenMessages:[]}
@@ -102,9 +107,8 @@ app.event('message', (message, body) => {
           app.client.chat.postMessage({
             token: process.env.SLACK_BOT_TOKEN,
             channel: data[1],
-            text: ':+1:',
-            as_user: true,
-            blocks: reportPanel.getReportPanel(usersStore,userIdList)
+            text: ':+1: Received the Token, Continue your work.',
+            as_user: true
           });
         } else {
           app.client.chat.postMessage({
@@ -170,27 +174,41 @@ async function scheduleTask() {
     console.log('day of the week : ',today.getDay())
     let currentTime = formatAMPM(today).split(':');
     let openingDays = [ 1, 2, 3, 4 , 5 ];
-    userIdList.forEach(userId => {
-      if (userId === 'U1FAMB9QR') {
-        let user = usersStore[userId].user;
-        sendCheck(user);
-      }
-    });
-  //   if(openingDays.includes( today.getDay() )){
-  //   if (workingTime(currentTime)) {
-  //     userIdList.forEach(userId => {
-  //       if (userId === 'U1FAMB9QR') {
-  //         let user = usersStore[userId].user;
-  //         sendCheck(user);
-  //       }
-  //     });
-  //   } else {
-  //     console.log('its not working hour !!!!');
-  //   }
-  // }else {
-  //   console.log('its Weekend !!!!');
-  // }
+    // userIdList.forEach(userId => {
+    //   if (userId === 'U1FAMB9QR') {
+    //     let user = usersStore[userId].user;
+    //     sendCheck(user);
+    //   }
+    // });
+    if(openingDays.includes( today.getDay() )){
+    if (workingTime(currentTime)) {
+      userIdList.forEach(userId => {
+        if (userId === 'U1FAMB9QR') {
+          let user = usersStore[userId].user;
+          sendCheck(user);
+        }
+      });
+    } else {
+      console.log('its not working hour !!!!');
+    }
+  }else {
+    console.log('its Weekend !!!!');
+  }
   });
+}
+
+function sendReport(){
+  try {
+      app.client.chat.postMessage({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: 'C010LSWKG2W',
+        text: ':+1:',
+        as_user: true,
+        blocks: reportPanel.getReportPanel(usersStore,userIdList)
+      });
+  } catch (error) {
+    console.error(error);
+  } 
 }
 
 function isReportTime(currentTime){
@@ -246,6 +264,6 @@ function workingTime(currentTime){
   console.log('⚡️ AVIS app is awake!');
   // After the app starts, fetch users and put them in a simple, in-memory cache
   fetchUsers();
-  scheduleTask();
+  // scheduleTask();
 })();
 

@@ -16,7 +16,6 @@ exports.getReportPanel = (userData,userIdList) => {
   userDataList = [];
   userDataList.push(['User','Total tokens','Submitted','Missed'])
   userIdList.forEach(item => {
-    console.log('item')
     let element = userData[item];
     if(element){
      let section = {
