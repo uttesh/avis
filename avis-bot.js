@@ -124,7 +124,7 @@ app.event(Constants.events.MESSAGE, (message, body) => {
 });
 
 async function scheduleTask() {
-  cron.schedule('*/2 * * * *', async() => {
+  cron.schedule('*/30 * * * *', async() => {
      if(userIdList.length == 0){
         await fetchUsers();
       }
