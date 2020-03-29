@@ -6,7 +6,7 @@ let reportMsg =
     "type": "section",
     "text": {
       "type": "mrkdwn",
-      "text": ""
+      "text": "*date here, total report data*"
     }
   }
 ];
@@ -19,11 +19,18 @@ exports.getReportPanel = (userData,userIdList) => {
     console.log('item')
     let element = userData[item];
     if(element){
-    userDataList.push([element.user.name,element.totalCheck,element.checkedCount,element.missedCount])
+     let section = {
+      type: "section",
+      text: {
+				type: "mrkdwn",
+				text: "*"+element.user.name+"*\nTotal Token: "+element.totalCheck+"\nReplied Token: "+element.checkedCount+"\nMissed Token: "+(element.totalCheck - element.checkedCount)
+			}
+     }
+     reportMsg.push(section);
+     reportMsg.push({
+      type: "divider"
+     });
     }
   });
-  let reportTable = table(userDataList);
-  console.log(reportTable);
-  reportMsg[0].text.text = reportTable;
   return reportMsg;
 }

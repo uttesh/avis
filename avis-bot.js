@@ -99,7 +99,6 @@ app.event('message', (message, body) => {
       try {
         if (flag) {
           usersStore[data[1]].checkedCount = usersStore[data[1]].checkedCount + 1;
-          usersStore[data[1]].missedCount = usersStore[data[1]].totalCheck - usersStore[data[1]].checkedCount;
           app.client.chat.postMessage({
             token: process.env.SLACK_BOT_TOKEN,
             channel: data[1],
@@ -108,7 +107,6 @@ app.event('message', (message, body) => {
             blocks: reportPanel.getReportPanel(usersStore,userIdList)
           });
         } else {
-          usersStore[data[1]].missedCount = usersStore[data[1]].totalCheck - usersStore[data[1]].checkedCount;
           app.client.chat.postMessage({
             token: process.env.SLACK_BOT_TOKEN,
             channel: data[1],
@@ -172,26 +170,26 @@ async function scheduleTask() {
     console.log('day of the week : ',today.getDay())
     let currentTime = formatAMPM(today).split(':');
     let openingDays = [ 1, 2, 3, 4 , 5 ];
-    // userIdList.forEach(userId => {
-    //   if (userId === 'U1FAMB9QR') {
-    //     let user = usersStore[userId].user;
-    //     sendCheck(user);
-    //   }
-    // });
-    if(openingDays.includes( today.getDay() )){
-    if (workingTime(currentTime)) {
-      userIdList.forEach(userId => {
-        if (userId === 'U1FAMB9QR') {
-          let user = usersStore[userId].user;
-          sendCheck(user);
-        }
-      });
-    } else {
-      console.log('its not working hour !!!!');
-    }
-  }else {
-    console.log('its Weekend !!!!');
-  }
+    userIdList.forEach(userId => {
+      if (userId === 'U1FAMB9QR') {
+        let user = usersStore[userId].user;
+        sendCheck(user);
+      }
+    });
+  //   if(openingDays.includes( today.getDay() )){
+  //   if (workingTime(currentTime)) {
+  //     userIdList.forEach(userId => {
+  //       if (userId === 'U1FAMB9QR') {
+  //         let user = usersStore[userId].user;
+  //         sendCheck(user);
+  //       }
+  //     });
+  //   } else {
+  //     console.log('its not working hour !!!!');
+  //   }
+  // }else {
+  //   console.log('its Weekend !!!!');
+  // }
   });
 }
 
