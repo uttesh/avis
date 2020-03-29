@@ -3,8 +3,10 @@ const Constants = require('./src/app/constants')
 const cron = require('node-cron');
 const routineCheck = require('./src/app/pages/routine_check');
 const reportPanel = require('./src/app/pages/report.card');
-const crypto = require("crypto");
 
+const BotService = require('./src/app/services/bot.service');
+
+const botService = new BotService();
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN
@@ -19,22 +21,13 @@ app.event(Constants.APP_HOME_OPENED, ({ event, say,payload }) => {
  // avisEventsHandler.appOpened(event, say,payload);
 });
 
-
-function getRandomText(user){
-  const id = crypto.randomBytes(16).toString("hex");
-  const time = Date.now();
-  let msg = "avis:"+user+":"+time+":"+id;
-  console.log('msg :: ',msg)
-  return msg
-}
-
 async function sendCheck(user){
   try {
     usersStore[user['id']].totalCheck = usersStore[user['id']].totalCheck + 1;
     console.log('user check total count :::',usersStore[user['id']].totalCheck)
     console.log('user checked count :::',usersStore[user['id']].checkedCount)
     console.log('user missed count :::',usersStore[user['id']].missedCount)
-    let tknMeesage = getRandomText(user['id']);
+    let tknMeesage = botService.getTokenText(user['id']);
     app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: user['id'],
@@ -71,11 +64,9 @@ async function fetchUsers() {
 }
 
 function saveUsers(usersArray) {
+  console.log('save user')
   usersArray.forEach(function(user){
-    console.log('user.name :: ',user.name)
-    if(user.name==='avis_status'){
-      console.log('user :: ',user)
-    }
+    console.log('user :: ',user.name)
     if(!user["deleted"] && !user["is_bot"]){
     userIdList.push(user["id"]);
     usersStore[user["id"]] = {user:user,totalCheck:0,checkedCount:0,missedCount:0,tokenMessages:[]}
@@ -167,34 +158,51 @@ function formatAMPM(date) {
 }
 
 async function scheduleTask() {
-  cron.schedule('*/2 * * * *', () => {
+  cron.schedule('*/2 * * * *', async() => {
+     if(userIdList.length == 0){
+        await fetchUsers();
+      }
     let today = new Date();
     console.log('running a task every two minutes');
     console.log('current time: ',formatAMPM(today))
     console.log('day of the week : ',today.getDay())
     let currentTime = formatAMPM(today).split(':');
     let openingDays = [ 1, 2, 3, 4 , 5 ];
-    // userIdList.forEach(userId => {
-    //   if (userId === 'U1FAMB9QR') {
-    //     let user = usersStore[userId].user;
-    //     sendCheck(user);
-    //   }
-    // });
-    if(openingDays.includes( today.getDay() )){
-    if (workingTime(currentTime)) {
-      userIdList.forEach(userId => {
-        if (userId === 'U1FAMB9QR') {
-          let user = usersStore[userId].user;
-          sendCheck(user);
-        }
-      });
-    } else {
-      console.log('its not working hour !!!!');
-    }
-  }else {
-    console.log('its Weekend !!!!');
-  }
+    console.log('userIdList :: ',userIdList.length)
+    userIdList.forEach(userId => {
+      if (userId === 'U1FAMB9QR') {
+        let user = usersStore[userId].user;
+        sendCheck(user);
+      }
+    });
+  //   if(openingDays.includes( today.getDay() )){
+  //   if (workingTime(currentTime)) {
+  //     if(userIdList.length == 0){
+  //       fetchUsers();
+  //     }
+  //     userIdList.forEach(userId => {
+  //       if (userId === 'U1FAMB9QR') {
+  //         let user = usersStore[userId].user;
+  //         sendCheck(user);
+  //       }
+  //     });
+  //   } else {
+  //     if(isReportTime(currentTime)){
+  //         sendReport();
+  //         reset();
+  //     }
+  //     console.log('its not working hour !!!!');
+  //   }
+  // }else {
+  //   console.log('its Weekend !!!!');
+  // }
   });
+}
+
+function reset(){
+  usersStore = {};
+  userIdList = [];
+  publishedToken = [];
 }
 
 function sendReport(){
@@ -263,7 +271,7 @@ function workingTime(currentTime){
   await app.start(process.env.PORT || 3000);
   console.log('⚡️ AVIS app is awake!');
   // After the app starts, fetch users and put them in a simple, in-memory cache
-  fetchUsers();
-  // scheduleTask();
+ // fetchUsers();
+  scheduleTask();
 })();
 
