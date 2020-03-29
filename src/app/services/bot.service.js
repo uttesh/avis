@@ -1,7 +1,12 @@
 const crypto = require("crypto");
 const Constants = require('../constants')
 const TokenService = require('../services/token.service')
+const reportPanel = require('../pages/report.card')
+const UserStoreService = require('../services/userstore.service')
+const userStoreService = new UserStoreService();
 const tokenService = new TokenService()
+let usersStore = userStoreService.getStore();
+let userIdList = userStoreService.getUserIDsList();
 class BotService {
 
   /**
