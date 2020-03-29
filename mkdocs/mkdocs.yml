@@ -1,0 +1,31 @@
+site_name: AVIS BOT
+theme: 
+  name: 'material'
+  palette:
+    primary: 'orange'
+    accent: 'orange'
+  logo: 'img/logo.png'
+  favicon: 'img/favicon.ico'
+site_description: AVIS (A Very Intelligence System) bot is the simple bot to monitor the user activity on the virtual interaction and generating the simple report of interaction. 
+markdown_extensions:
+  - admonition
+site_author: Uttesh Kumar T.H.
+copyright: Copyright (c) 2020 Uttesh Kumar T.H.
+google_analytics:
+  - 'UA-37592456-1'
+  - 'auto'
+
+# Customization
+extra:
+  manifest: 'manifest.webmanifest'
+  social:
+    - type: 'github'
+      link: 'https://github.com/uttesh'
+    - type: 'twitter'
+      link: 'https://twitter.com/uttesh'
+    - type: 'linkedin'
+      link: 'https://www.linkedin.com/in/uttesh'
+      
+nav:
+    - Overview: 'index.md'
+    - 'License': 'license.md'
