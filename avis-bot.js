@@ -40,7 +40,7 @@ async function sendCheck(user){
       channel: user['id'],
       text: 'Routine Check Please reply the below message :)',
       as_user: true,
-      blocks: routineCheck.getCheckTaskRequestButton(user,tknMeesage)
+      blocks: routineCheck.getCheckTaskRequestButton(usersStore[user['id']].totalCheck,user,tknMeesage)
     });
   }
   catch (error) {
