@@ -2,17 +2,18 @@ const { App } = require('@slack/bolt');
 const Constants = require('./src/app/constants')
 const cron = require('node-cron');
 const routineCheck = require('./src/app/pages/routine_check');
-const reportPanel = require('./src/app/pages/report.card');
 const BotService = require('./src/app/services/bot.service');
 const UserStoreService = require('./src/app/services/userstore.service')
+const TokenService = require('./src/app/services/token.service')
 
 const botService = new BotService();
 const userStoreService = new UserStoreService();
+const tokenService = new TokenService();
 
 // You probably want to use a database to store any user information ;)
 let usersStore = userStoreService.getStore();
 let userIdList = userStoreService.getUserIDsList();
-let publishedToken = [];
+
 
 /**
  * Initializing the app object from the keys
@@ -38,7 +39,7 @@ async function sendCheck(user){
     let userId = user['id'];
     userStoreService.addTotalCheckForUser(userId);
     let totalCheck =  userStoreService.getTotalCheckByUser(userId)
-    let tknMeesage = botService.getTokenText(userId);
+    let tknMeesage = botService.generateToken(userId);
     app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: userId,
@@ -95,28 +96,28 @@ app.error((error) => {
 app.event(Constants.events.MESSAGE, (message, body) => {
   if (!message.subtype && message.payload.text.indexOf('avis:') >= 0) {
     console.log('replied message :::', message.payload.text);
-    let data = message.payload.text.split(":");
-    console.log('data :::', message.payload.text)
+    let token = message.payload.text;
+    let tokenObject = tokenService.getTokenDetails(token);
+    console.log('tokenObject :::',tokenObject)
     let tknMsg =  message.payload.text.replace(/```/g,'');
-    console.log('data :::', message.payload.text)
     console.log('tknMsg :::', tknMsg)
-    console.log('tknMsg msg exists in the list :::', usersStore[data[1]].tokenMessages.indexOf(tknMsg))
-    if (usersStore[data[1]].tokenMessages.indexOf(tknMsg) == -1) {
-      let flag = botService.repliedInTime(data[2]);
-      usersStore[data[1]].tokenMessages.push(tknMsg);
-      console.log(usersStore[data[1]].tokenMessages);
+    console.log('tknMsg msg exists in the list :::', usersStore[tokenObject.user].tokenMessages.indexOf(tknMsg))
+    if (tokenService.isValidPublishedToken(tokenObject.user,tknMsg) && usersStore[tokenObject.user].tokenMessages.indexOf(tknMsg) == -1) {
+      let flag = botService.repliedInTime(tokenObject.sentTime);
+      usersStore[tokenObject.user].tokenMessages.push(tknMsg);
+      console.log(usersStore[tokenObject.user].tokenMessages);
       try {
         if (flag) {
-          usersStore[data[1]].checkedCount = usersStore[data[1]].checkedCount + 1;
-          botService.postMessage(app,Constants.Messages.TOKEN_RECEIVED_MSG,data[1])
+          usersStore[tokenObject.user].checkedCount = usersStore[tokenObject.user].checkedCount + 1;
+          botService.postMessage(app,Constants.Messages.TOKEN_RECEIVED_MSG,tokenObject.user)
         } else {
-          botService.postMessage(app,Constants.Messages.TOKEN_LATE_REPLY,data[1])
+          botService.postMessage(app,Constants.Messages.TOKEN_LATE_REPLY,tokenObject.user)
         }
       } catch (error) {
         console.error(error);
       }
     }else{
-      botService.postMessage(app,Constants.Messages.TOKEN_RE_SUBMIT,data[1])
+      botService.postMessage(app,Constants.Messages.TOKEN_RE_SUBMIT,tokenObject.user)
     }
   }
 });

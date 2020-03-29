@@ -1,18 +1,20 @@
 const crypto = require("crypto");
 const Constants = require('../constants')
-
+const TokenService = require('../services/token.service')
+const tokenService = new TokenService()
 class BotService {
 
   /**
    * Generate Token message
    * @param {token  message} user 
    */
-  getTokenText(user){
+  generateToken(user){
     const id = crypto.randomBytes(16).toString("hex");
     const time = Date.now();
-    let msg = "avis:"+user+":"+time+":"+id;
-    console.log('token text: ',msg)
-    return msg
+    let token = "avis:"+user+":"+time+":"+id;
+    console.log('token text: ',token)
+    tokenService.addToken(token)
+    return token
   }
 
   /**
