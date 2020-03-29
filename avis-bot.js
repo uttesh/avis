@@ -135,33 +135,33 @@ async function scheduleTask() {
     let currentTime = botService.formatAMPM(today).split(':');
     let openingDays = [ 1, 2, 3, 4 , 5 ];
     console.log('userIdList :: ',userIdList.length)
-    userIdList.forEach(userId => {
-      if (userId === 'U1FAMB9QR') {
-        let user = usersStore[userId].user;
-        sendCheck(user);
+    // userIdList.forEach(userId => {
+    //   if (userId === 'U1FAMB9QR') {
+    //     let user = usersStore[userId].user;
+    //     sendCheck(user);
+    //   }
+    // });
+    if(openingDays.includes( today.getDay() )){
+    if (botService.workingTime(currentTime)) {
+      if(userIdList.length == 0){
+        await fetchUsers();
       }
-    });
-  //   if(openingDays.includes( today.getDay() )){
-  //   if (botService.workingTime(currentTime)) {
-  //     if(userIdList.length == 0){
-  //       await fetchUsers();
-  //     }
-  //     userIdList.forEach(userId => {
-  //       if (userId === 'U1FAMB9QR') {
-  //         let user = usersStore[userId].user;
-  //         sendCheck(user);
-  //       }
-  //     });
-  //   } else {
-  //     if(botService.isReportTime(currentTime)){
-  //       botService.sendReport(app);
-  //       userStoreService.resetAll();
-  //     }
-  //     console.log('its not working hour !!!!');
-  //   }
-  // }else {
-  //   console.log('its Weekend !!!!');
-  // }
+      userIdList.forEach(userId => {
+        if (userId === 'U1FAMB9QR') {
+          let user = usersStore[userId].user;
+          sendCheck(user);
+        }
+      });
+    } else {
+      if(botService.isReportTime(currentTime)){
+        botService.sendReport(app);
+        userStoreService.resetAll();
+      }
+      console.log('its not working hour !!!!');
+    }
+  }else {
+    console.log('its Weekend !!!!');
+  }
   });
 }
 
