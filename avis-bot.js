@@ -3,37 +3,48 @@ const Constants = require('./src/app/constants')
 const cron = require('node-cron');
 const routineCheck = require('./src/app/pages/routine_check');
 const reportPanel = require('./src/app/pages/report.card');
-
 const BotService = require('./src/app/services/bot.service');
+const UserStoreService = require('./src/app/services/userstore.service')
 
 const botService = new BotService();
+const userStoreService = new UserStoreService();
+
+// You probably want to use a database to store any user information ;)
+let usersStore = userStoreService.getStore();
+let userIdList = userStoreService.getUserIDsList();
+let publishedToken = [];
+
+/**
+ * Initializing the app object from the keys
+ */
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN
 });
 
-
-app.event('app_mention',({ event, say,payload }) => {  
-  console.log('app mentioned')
- });
-
+ /**
+  * Do Something when user opens the bot char window
+  */
 app.event(Constants.APP_HOME_OPENED, ({ event, say,payload }) => {  
  // avisEventsHandler.appOpened(event, say,payload);
 });
 
+/**
+ *  Send the Token message to the User, DM to user
+ * @param {User Id} user 
+ */
 async function sendCheck(user){
   try {
-    usersStore[user['id']].totalCheck = usersStore[user['id']].totalCheck + 1;
-    console.log('user check total count :::',usersStore[user['id']].totalCheck)
-    console.log('user checked count :::',usersStore[user['id']].checkedCount)
-    console.log('user missed count :::',usersStore[user['id']].missedCount)
-    let tknMeesage = botService.getTokenText(user['id']);
+    let userId = user['id'];
+    userStoreService.addTotalCheckForUser(userId);
+    let totalCheck =  userStoreService.getTotalCheckByUser(userId)
+    let tknMeesage = botService.getTokenText(userId);
     app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
-      channel: user['id'],
-      text: 'Routine Check Please reply the below message :)',
+      channel: userId,
+      text: Constants.Messages.TOKEN_CHECK_MSG,
       as_user: true,
-      blocks: routineCheck.getCheckTaskRequestButton(usersStore[user['id']].totalCheck,user,tknMeesage)
+      blocks: routineCheck.getCheckTaskRequestButton(totalCheck,user,tknMeesage)
     });
   }
   catch (error) {
@@ -41,13 +52,9 @@ async function sendCheck(user){
   } 
 }
 
-
-// You probably want to use a database to store any user information ;)
-let usersStore = {};
-let userIdList = [];
-let publishedToken = [];
-
-// Fetch users using the users.list method
+/**
+ * Fetch the all user from the client
+ */
 async function fetchUsers() {
   try {
     // Call the users.list method using the built-in WebClient
@@ -55,7 +62,6 @@ async function fetchUsers() {
       // The token you used to initialize your app
       token: process.env.SLACK_BOT_TOKEN
     });
-
     saveUsers(result.members);
   }
   catch (error) {
@@ -63,23 +69,30 @@ async function fetchUsers() {
   }
 }
 
-function saveUsers(usersArray) {
-  console.log('save user')
-  usersArray.forEach(function(user){
-    console.log('user :: ',user.name)
-    if(!user["deleted"] && !user["is_bot"]){
-    userIdList.push(user["id"]);
-    usersStore[user["id"]] = {user:user,totalCheck:0,checkedCount:0,missedCount:0,tokenMessages:[]}
+/**
+ * save the user data
+ * @param {} usersArray 
+ */
+async function saveUsers(usersArray) {
+  usersArray.forEach(function (user) {
+    if (!user[Constants.DELETED] && !user[Constants.IS_BOT]) {
+      userIdList.push(user.id);
+      userStoreService.initStoreByUser(user)
     }
   });
 }
 
+/**
+ * Any app related error will be logged here
+ */
 app.error((error) => {
   console.error(message);
 });
 
-
-app.event('message', (message, body) => {
+/**
+ * Read all the incoming message and check for the token related message (This methis need to be changes, its looking in all messages which is not good of the performance)
+ */
+app.event(Constants.events.MESSAGE, (message, body) => {
   if (!message.subtype && message.payload.text.indexOf('avis:') >= 0) {
     console.log('replied message :::', message.payload.text);
     let data = message.payload.text.split(":");
@@ -95,31 +108,15 @@ app.event('message', (message, body) => {
       try {
         if (flag) {
           usersStore[data[1]].checkedCount = usersStore[data[1]].checkedCount + 1;
-          app.client.chat.postMessage({
-            token: process.env.SLACK_BOT_TOKEN,
-            channel: data[1],
-            text: ':+1: Received the Token, Continue your work.',
-            as_user: true
-          });
+          botService.postMessage(app,Constants.Messages.TOKEN_RECEIVED_MSG,data[1])
         } else {
-          app.client.chat.postMessage({
-            token: process.env.SLACK_BOT_TOKEN,
-            channel: data[1],
-            text: ':hourglass_flowing_sand: late reply. Token expired',
-            as_user: true
-          });
+          botService.postMessage(app,Constants.Messages.TOKEN_LATE_REPLY,data[1])
         }
-
       } catch (error) {
         console.error(error);
       }
     }else{
-      app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: data[1],
-        text: ':interrobang: This token already submitted. I am little smart :yum: !!!!',
-        as_user: true
-      });
+      botService.postMessage(app,Constants.Messages.TOKEN_RE_SUBMIT,data[1])
     }
   }
 });
