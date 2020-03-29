@@ -23,7 +23,7 @@ exports.getReportPanel = (userData,userIdList) => {
       type: "section",
       text: {
 				type: "mrkdwn",
-				text: "*"+element.user.name+"*\nTotal Token: "+element.totalCheck+"\nReplied Token: "+element.checkedCount+"\nMissed Token: "+(element.totalCheck - element.checkedCount)
+				text: "*"+element.user.name+"*\n Total Token: "+element.totalCheck+" | Replied Token: "+element.checkedCount+" | Missed Token: "+(element.totalCheck - element.checkedCount)
 			}
      }
      reportMsg.push(section);
