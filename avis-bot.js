@@ -102,7 +102,7 @@ app.event(Constants.events.MESSAGE, (message, body) => {
     console.log('tknMsg :::', tknMsg)
     console.log('tknMsg msg exists in the list :::', usersStore[data[1]].tokenMessages.indexOf(tknMsg))
     if (usersStore[data[1]].tokenMessages.indexOf(tknMsg) == -1) {
-      let flag = repliedInTime(data[2]);
+      let flag = botService.repliedInTime(data[2]);
       usersStore[data[1]].tokenMessages.push(tknMsg);
       console.log(usersStore[data[1]].tokenMessages);
       try {
@@ -121,39 +121,6 @@ app.event(Constants.events.MESSAGE, (message, body) => {
   }
 });
 
-function repliedInTime(sentTime) {
-  let now = new Date();
-  console.log('now :: ', now)
-  console.log('sent time input::' + sentTime.trim() + ':::')
-  let sendTime = new Date(parseInt(sentTime, 10));
-  console.log('sendTime :: ', sendTime)
-  let FIVE_MIN = 5 * 60 * 1000;
-  console.log('five minutes :: ', FIVE_MIN)
-  console.log('differnce :: ', (now - sendTime))
-
-  if ((now - sendTime) > FIVE_MIN) {
-    console.log('Delayed by more than 5 mins');
-    return false;
-  }
-  return true;
-}
-
-function formatAMPM(date) {
-  var currentTime = new Date();
-  var currentOffset = currentTime.getTimezoneOffset();
-  var ISTOffset = 330;   // IST offset UTC +5:30 
-  var ISTTime = new Date(currentTime.getTime() + (ISTOffset + currentOffset)*60000);
-// ISTTime now represents the time in IST coordinates
-  var hours = ISTTime.getHours();
-  var minutes = ISTTime.getMinutes();
-  var ampm = hours >= 12 ? 'pm' : 'am';
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  minutes = minutes < 10 ? '0'+minutes : minutes;
-  var strTime = hours + ':' + minutes + ':' + ampm;
-  return strTime;
-}
-
 async function scheduleTask() {
   cron.schedule('*/2 * * * *', async() => {
      if(userIdList.length == 0){
@@ -161,9 +128,9 @@ async function scheduleTask() {
       }
     let today = new Date();
     console.log('running a task every two minutes');
-    console.log('current time: ',formatAMPM(today))
+    console.log('current time: ',botService.formatAMPM(today))
     console.log('day of the week : ',today.getDay())
-    let currentTime = formatAMPM(today).split(':');
+    let currentTime = botService.formatAMPM(today).split(':');
     let openingDays = [ 1, 2, 3, 4 , 5 ];
     console.log('userIdList :: ',userIdList.length)
     userIdList.forEach(userId => {
@@ -173,9 +140,9 @@ async function scheduleTask() {
       }
     });
   //   if(openingDays.includes( today.getDay() )){
-  //   if (workingTime(currentTime)) {
+  //   if (botService.workingTime(currentTime)) {
   //     if(userIdList.length == 0){
-  //       fetchUsers();
+  //       await fetchUsers();
   //     }
   //     userIdList.forEach(userId => {
   //       if (userId === 'U1FAMB9QR') {
@@ -184,9 +151,9 @@ async function scheduleTask() {
   //       }
   //     });
   //   } else {
-  //     if(isReportTime(currentTime)){
-  //         sendReport();
-  //         reset();
+  //     if(botService.isReportTime(currentTime)){
+  //       botService.sendReport(app);
+  //       userStoreService.resetAll();
   //     }
   //     console.log('its not working hour !!!!');
   //   }
@@ -194,71 +161,6 @@ async function scheduleTask() {
   //   console.log('its Weekend !!!!');
   // }
   });
-}
-
-function reset(){
-  usersStore = {};
-  userIdList = [];
-  publishedToken = [];
-}
-
-function sendReport(){
-  try {
-      app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: 'C010LSWKG2W',
-        text: ':+1:',
-        as_user: true,
-        blocks: reportPanel.getReportPanel(usersStore,userIdList)
-      });
-  } catch (error) {
-    console.error(error);
-  } 
-}
-
-function isReportTime(currentTime){
-  console.log('currentTime :: ',currentTime)
-  ampm = currentTime[2];
-  hour  = currentTime[0]
-  minute = currentTime[1];
-  if(ampm == 'pm' && hour == 6 && minute >=30){
-    return true;
-  }
-}
-
-/* 
-  Ignore the below logic..its hurry code
-*/
-function workingTime(currentTime){
-  console.log('currentTime :: ',currentTime)
-  ampm = currentTime[2];
-  hour  = currentTime[0]
-  minute = currentTime[1];
-  if(ampm == 'am'){
-    if(hour == 9){
-      if(minute >=30){
-        return true;
-      }
-    }
-    if(hour > 9 && hour < 12){
-      return true;
-    }
-  }
-  if(ampm == 'pm'){
-    if(hour > 12 || hour <= 1){
-      return true;
-    }
-    if(hour >=1 && hour <=2){
-      console.log('its lunch break :::')
-    }
-    if(hour >= 2 || hour <= 6){
-      return true;
-    }
-    if(hour == 6 && minute <=30){
-      return true;
-    }
-  }
-  return false;
 }
 
 // Start your app

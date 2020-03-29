@@ -43,6 +43,11 @@ class UserStoreService {
     userIdList.push(userId);
    }
 
+   resetAll(){
+    usersStore = {};
+    userIdList = [];
+   }
+
 }
 
 module.exports = UserStoreService
