@@ -6,7 +6,7 @@ theme:
     accent: 'orange'
   logo: 'img/logo.png'
   favicon: 'img/favicon.ico'
-site_description: AVIS (A Very Intelligence System) bot is the simple bot to monitor the user activity on the virtual interaction and generating the simple report of interaction. 
+site_description: AVIS (A Very Intelligent System) bot is the simple bot to monitor the user activity on the virtual interaction and generating the simple report of interaction. 
 markdown_extensions:
   - admonition
 site_author: Uttesh Kumar T.H.
