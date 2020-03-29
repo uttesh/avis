@@ -110,7 +110,7 @@ app.event(Constants.events.MESSAGE, (message, body) => {
         if (flag) {
           usersStore[tokenObject.user].checkedCount = usersStore[tokenObject.user].checkedCount + 1;
           botService.postMessage(app,Constants.Messages.TOKEN_RECEIVED_MSG,tokenObject.user)
-          botService.sendReport(app);
+          //botService.sendReport(app);
         } else {
           botService.postMessage(app,Constants.Messages.TOKEN_LATE_REPLY,tokenObject.user)
         }
