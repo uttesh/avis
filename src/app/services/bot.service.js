@@ -99,9 +99,9 @@ class BotService {
    */
   isReportTime(currentTime){
     console.log('currentTime :: ',currentTime)
-    ampm = currentTime[2];
-    hour  = currentTime[0]
-    minute = currentTime[1];
+    let ampm = currentTime[2];
+    let hour  = currentTime[0]
+    let minute = currentTime[1];
     if(ampm == 'pm' && hour == 6 && minute >=30){
       return true;
     }
@@ -112,9 +112,9 @@ class BotService {
 */
 workingTime(currentTime){
   console.log('currentTime :: ',currentTime)
-  ampm = currentTime[2];
-  hour  = currentTime[0]
-  minute = currentTime[1];
+  let ampm = currentTime[2];
+  let hour  = currentTime[0]
+  let minute = currentTime[1];
   if(ampm == 'am'){
     if(hour == 9){
       if(minute >=30){
