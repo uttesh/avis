@@ -149,7 +149,7 @@ async function scheduleTask() {
         await fetchUsers();
       }
       for (userId of userIdList){
-        if(Constants.config.TEST_USERS.includes(userId)){
+        if(Constants.config.DEV_TEST_USERS.includes(userId)){
           let user = usersStore[userId].user;
           console.log('user present in test list ',user.name)
           await sendCheck(user);

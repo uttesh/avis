@@ -15,7 +15,7 @@ module.exports.events = {
 module.exports.config = {
   TOKEN_EXPIRE_TIME: 5,
   AVIS_STATUS_CHANNEL_ID: 'C010LSWKG2W',
-  TEST_USERS: [
+  PROD_USERS: [
     'U1FAMB9QR', // Uttesh
     'U7LG4ADM5', // Raghavendra
     'U1H1V4CCD', // Sandya
@@ -32,6 +32,10 @@ module.exports.config = {
     'UGH3M0S5T', // Ravi Putta
     'UHB842U1Y', // Nagarjuna Chowkilla
     'UK9M16E64'  // Shobha Katagi
+  ],
+  DEV_TEST_USERS: [
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5' // Raghavendra
   ]
 }
 
