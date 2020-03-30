@@ -40,7 +40,7 @@ async function sendCheck(user){
     userStoreService.addTotalCheckForUser(userId);
     let totalCheck =  userStoreService.getTotalCheckByUser(userId)
     let tknMeesage = botService.generateToken(userId);
-    app.client.chat.postMessage({
+    await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: userId,
       text: Constants.Messages.TOKEN_CHECK_MSG,
@@ -146,12 +146,10 @@ async function scheduleTask() {
       if(userIdList.length == 0){
         await fetchUsers();
       }
-      userIdList.forEach(userId => {
-        //if (userId === 'U1FAMB9QR') {
-          let user = usersStore[userId].user;
-          sendCheck(user);
-        //}
-      });
+      for (userId of userIdList){
+        let user = usersStore[userId].user;
+        await sendCheck(user);
+      }
     } else {
       if(botService.isReportTime(currentTime)){
         botService.sendReport(app);
@@ -173,6 +171,15 @@ async function scheduleTask() {
   console.log('⚡️ AVIS app is awake!');
   // After the app starts, fetch users and put them in a simple, in-memory cache
  // fetchUsers();
+
+  if(userIdList.length == 0){
+    await fetchUsers();
+  }
+  for (userId of userIdList){
+    let user = usersStore[userId].user;
+    await sendCheck(user);
+  }
+
   scheduleTask();
 })();
 
