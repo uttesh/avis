@@ -172,14 +172,14 @@ async function scheduleTask() {
   // After the app starts, fetch users and put them in a simple, in-memory cache
  // fetchUsers();
 
-  if(userIdList.length == 0){
-    await fetchUsers();
-  }
-  for (userId of userIdList){
-    let user = usersStore[userId].user;
-    await sendCheck(user);
-  }
+  // if(userIdList.length == 0){
+  //   await fetchUsers();
+  // }
+  // for (userId of userIdList){
+  //   let user = usersStore[userId].user;
+  //   await sendCheck(user);
+  // }
 
-  scheduleTask();
+  // scheduleTask();
 })();
 
