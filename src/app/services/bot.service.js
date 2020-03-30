@@ -126,13 +126,13 @@ workingTime(currentTime){
     }
   }
   if(ampm == 'pm'){
-    if(hour > 12 || hour <= 1){
+    if(hour == 12 || hour <= 1){
       return true;
     }
     if(hour >=1 && hour <=2){
       console.log('its lunch break :::')
     }
-    if(hour >= 2 || hour <= 6){
+    if(hour >= 2 || hour < 6){
       return true;
     }
     if(hour == 6 && minute <=30){
