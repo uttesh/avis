@@ -147,10 +147,10 @@ async function scheduleTask() {
         await fetchUsers();
       }
       userIdList.forEach(userId => {
-        if (userId === 'U1FAMB9QR') {
+        //if (userId === 'U1FAMB9QR') {
           let user = usersStore[userId].user;
           sendCheck(user);
-        }
+        //}
       });
     } else {
       if(botService.isReportTime(currentTime)){
