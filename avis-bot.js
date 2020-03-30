@@ -141,25 +141,25 @@ async function scheduleTask() {
     //     sendCheck(user);
     //   }
     // });
-    if(openingDays.includes( today.getDay() )){
-    if (botService.workingTime(currentTime)) {
-      if(userIdList.length == 0){
-        await fetchUsers();
-      }
-      for (userId of userIdList){
-        let user = usersStore[userId].user;
-        await sendCheck(user);
-      }
-    } else {
-      if(botService.isReportTime(currentTime)){
-        botService.sendReport(app);
-        userStoreService.resetAll();
-      }
-      console.log('its not working hour !!!!');
-    }
-  }else {
-    console.log('its Weekend !!!!');
-  }
+  //   if(openingDays.includes( today.getDay() )){
+  //   if (botService.workingTime(currentTime)) {
+  //     if(userIdList.length == 0){
+  //       await fetchUsers();
+  //     }
+  //     for (userId of userIdList){
+  //       let user = usersStore[userId].user;
+  //       await sendCheck(user);
+  //     }
+  //   } else {
+  //     if(botService.isReportTime(currentTime)){
+  //       botService.sendReport(app);
+  //       userStoreService.resetAll();
+  //     }
+  //     console.log('its not working hour !!!!');
+  //   }
+  // }else {
+  //   console.log('its Weekend !!!!');
+  // }
   });
 }
 
