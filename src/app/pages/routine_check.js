@@ -1,3 +1,6 @@
+const QuoteService = require('../services/quote.service')
+const quoteService = new QuoteService();
+
 let CheckListButton = 
 [
   {
@@ -8,20 +11,41 @@ let CheckListButton =
     }
   },
   {
-    "type": "section",
-    "block_id": "section1234",
-    "fields": [
+    "type": "context",
+    "elements": [
       {
         "type": "mrkdwn",
-        "text": ""
+        "text": "Quote for the moment"
       }
     ]
+  },
+  {
+    "type": "divider"
+  },
+  {
+    "type": "section",
+    "text": {
+      "type": "mrkdwn",
+      "text": ""
+    }
+  },
+  {
+    "type": "divider"
+  },
+  {
+    "type": "section",
+    "text": {
+        "type": "mrkdwn",
+        "text": ""
+    }
   }
 ];
 
 
 exports.getCheckTaskRequestButton = (totalCount,user,msg) => {
-  CheckListButton[0].text.text = 'Hello! '+ user['real_name'] +', Please reply the below token message to AVIS in 5 minutes in this window only';
-  CheckListButton[1].fields[0].text = '*Token Message #'+totalCount+'*\n *```'+msg+'```*';
+  CheckListButton[0].text.text = 'Hello! '+ user['real_name'] +',';
+  let quote = quoteService.getQuote();
+  CheckListButton[3].text.text = "_"+quote.quoteText+"_\n"+"*_"+quote.quoteAuthor+"_*";
+  CheckListButton[5].text.text = '\nPlease reply the below token message to AVIS within 5 minutes, In this window only.\n*Token Message #'+totalCount+'*\n *```'+msg+'```*';
   return CheckListButton;
 }

@@ -5,10 +5,12 @@ const routineCheck = require('./src/app/pages/routine_check');
 const BotService = require('./src/app/services/bot.service');
 const UserStoreService = require('./src/app/services/userstore.service')
 const TokenService = require('./src/app/services/token.service')
+const QuoteService = require('./src/app/services/quote.service')
 
 const botService = new BotService();
 const userStoreService = new UserStoreService();
 const tokenService = new TokenService();
+const quoteService = new QuoteService();
 
 // You probably want to use a database to store any user information ;)
 let usersStore = userStoreService.getStore();
@@ -98,27 +100,27 @@ app.event(Constants.events.MESSAGE, (message, body) => {
     console.log('replied message :::', message.payload.text);
     let token = message.payload.text;
     let tokenObject = tokenService.getTokenDetails(token);
-    console.log('tokenObject :::',tokenObject)
-    let tknMsg =  message.payload.text.replace(/```/g,'');
+    console.log('tokenObject :::', tokenObject)
+    let tknMsg = message.payload.text.replace(/```/g, '');
     console.log('tknMsg :::', tknMsg)
-    console.log('tknMsg msg exists in the list :::', usersStore[tokenObject.user].tokenMessages.indexOf(tknMsg))
-    if (tokenService.isValidPublishedToken(tokenObject.user,tknMsg) && usersStore[tokenObject.user].tokenMessages.indexOf(tknMsg) == -1) {
-      let flag = botService.repliedInTime(tokenObject.sentTime);
-      usersStore[tokenObject.user].tokenMessages.push(tknMsg);
-      console.log(usersStore[tokenObject.user].tokenMessages);
-      try {
-        if (flag) {
-          usersStore[tokenObject.user].checkedCount = usersStore[tokenObject.user].checkedCount + 1;
-          botService.postMessage(app,Constants.Messages.TOKEN_RECEIVED_MSG,tokenObject.user)
-          //botService.sendReport(app);
-        } else {
-          botService.postMessage(app,Constants.Messages.TOKEN_LATE_REPLY,tokenObject.user)
+    if (usersStore[tokenObject.user] && usersStore[tokenObject.user].tokenMessages) {
+      if (tokenService.isValidPublishedToken(tokenObject.user, tknMsg) && usersStore[tokenObject.user].tokenMessages.indexOf(tknMsg) == -1) {
+        let flag = botService.repliedInTime(tokenObject.sentTime);
+        usersStore[tokenObject.user].tokenMessages.push(tknMsg);
+        console.log(usersStore[tokenObject.user].tokenMessages);
+        try {
+          if (flag) {
+            usersStore[tokenObject.user].checkedCount = usersStore[tokenObject.user].checkedCount + 1;
+            botService.postMessage(app, Constants.Messages.TOKEN_RECEIVED_MSG, tokenObject.user)
+          } else {
+            botService.postMessage(app, Constants.Messages.TOKEN_LATE_REPLY, tokenObject.user)
+          }
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        botService.postMessage(app, Constants.Messages.TOKEN_RE_SUBMIT, tokenObject.user)
       }
-    }else{
-      botService.postMessage(app,Constants.Messages.TOKEN_RE_SUBMIT,tokenObject.user)
     }
   }
 });
@@ -129,7 +131,7 @@ async function scheduleTask() {
         await fetchUsers();
       }
     let today = new Date();
-    console.log('running a task every two minutes');
+    console.log('running a task every 30 minutes');
     console.log('current time: ',botService.formatAMPM(today))
     console.log('day of the week : ',today.getDay())
     let currentTime = botService.formatAMPM(today).split(':');
@@ -141,25 +143,28 @@ async function scheduleTask() {
     //     sendCheck(user);
     //   }
     // });
-  //   if(openingDays.includes( today.getDay() )){
-  //   if (botService.workingTime(currentTime)) {
-  //     if(userIdList.length == 0){
-  //       await fetchUsers();
-  //     }
-  //     for (userId of userIdList){
-  //       let user = usersStore[userId].user;
-  //       await sendCheck(user);
-  //     }
-  //   } else {
-  //     if(botService.isReportTime(currentTime)){
-  //       botService.sendReport(app);
-  //       userStoreService.resetAll();
-  //     }
-  //     console.log('its not working hour !!!!');
-  //   }
-  // }else {
-  //   console.log('its Weekend !!!!');
-  // }
+    if(openingDays.includes( today.getDay() )){
+    if (botService.workingTime(currentTime)) {
+      if(userIdList.length == 0){
+        await fetchUsers();
+      }
+      for (userId of userIdList){
+        if(Constants.config.TEST_USERS.includes(userId)){
+          let user = usersStore[userId].user;
+          console.log('user present in test list ',user.name)
+          await sendCheck(user);
+        }
+      }
+    } else {
+      if(botService.isReportTime(currentTime)){
+        botService.sendReport(app);
+        userStoreService.resetAll();
+      }
+      console.log('its not working hour !!!!');
+    }
+  }else {
+    console.log('its Weekend !!!!');
+  }
   });
 }
 
@@ -171,15 +176,16 @@ async function scheduleTask() {
   console.log('⚡️ AVIS app is awake!');
   // After the app starts, fetch users and put them in a simple, in-memory cache
  // fetchUsers();
-
   // if(userIdList.length == 0){
   //   await fetchUsers();
   // }
   // for (userId of userIdList){
-  //   let user = usersStore[userId].user;
-  //   await sendCheck(user);
+  //   if(Constants.config.TEST_USERS.includes(userId)){
+  //     let user = usersStore[userId].user;
+  //     console.log('user present in test list ',user.name)
+  //     await sendCheck(user);
+  //   }
   // }
-
-  // scheduleTask();
+   scheduleTask();
 })();
 

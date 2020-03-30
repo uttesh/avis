@@ -14,7 +14,25 @@ module.exports.events = {
 
 module.exports.config = {
   TOKEN_EXPIRE_TIME: 5,
-  AVIS_STATUS_CHANNEL_ID: 'C010LSWKG2W'
+  AVIS_STATUS_CHANNEL_ID: 'C010LSWKG2W',
+  TEST_USERS: [
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
+    'U1H1V4CCD', // Sandya
+    'U04H3AR26', // Sinivas kommareddi
+    'U1F9R3XJ7', // Yallanki
+    'U1FAPJPHA', // Suriya
+    'U1FB3HX2B', // Narayan
+    'U1FBBANSE', // Muni
+    'U1FE6HWHE', // Ganeshan
+    'U1JB29HEV', // Santhosh
+    'U24C267K4', // Revathi
+    'UUDFZGBTJ', // Sunel
+    'UEV7A3MK6', // Sreedhar Nare
+    'UGH3M0S5T', // Ravi Putta
+    'UHB842U1Y', // Nagarjuna Chowkilla
+    'UK9M16E64'  // Shobha Katagi
+  ]
 }
 
 
