@@ -149,16 +149,21 @@ async function scheduleTask() {
         await fetchUsers();
       }
       for (userId of userIdList){
-        if(Constants.config.DEV_TEST_USERS.includes(userId)){
+        if(Constants.config.PROD_USERS.includes(userId)){
           let user = usersStore[userId].user;
           console.log('user present in test list ',user.name)
           await sendCheck(user);
         }
       }
     } else {
+      console.log('its not working hours,check for report generation')
       if(botService.isReportTime(currentTime)){
-        botService.sendReport(app);
-        userStoreService.resetAll();
+        if(userIdList.length != 0){
+          botService.sendReport(app);
+          userStoreService.resetAll();
+        }else{
+          console.log('report laready generated')
+        }
       }
       console.log('its not working hour !!!!');
     }

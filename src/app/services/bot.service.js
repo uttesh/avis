@@ -102,7 +102,7 @@ class BotService {
     let ampm = currentTime[2];
     let hour  = currentTime[0]
     let minute = currentTime[1];
-    if(ampm == 'pm' && hour == 6 && minute >=30){
+    if(ampm == 'pm' && hour >= 6 && minute >=30){
       return true;
     }
   }
@@ -126,13 +126,17 @@ workingTime(currentTime){
     }
   }
   if(ampm == 'pm'){
+    console.log('ampm :: ',ampm)
+    console.log('hour :: ',hour)
+    console.log('minute :: ',minute)
     if(hour == 12 || hour <= 1){
       return true;
     }
     if(hour >=1 && hour <=2){
       console.log('its lunch break :::')
+      return false;
     }
-    if(hour >= 2 || hour < 6){
+    if(hour >= 2 && hour < 6){
       return true;
     }
     if(hour == 6 && minute <=30){
