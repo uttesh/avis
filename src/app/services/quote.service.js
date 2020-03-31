@@ -1,13 +1,18 @@
 let json = require('../quotes/quotes.json');
+let programJson = require('../quotes/programming_quotes.json')
 
 class QuoteService {
 
   getQuote() {
-    return json[this.randomNumber()];
+    return json[this.randomNumber(5421)];
   }
 
-  randomNumber() {
-    return Math.floor(Math.random() * (5421 - 1) + 1);
+  getProgramQuote(){
+     return programJson[this.randomNumber(501)];
+  }
+
+  randomNumber(limit) {
+    return Math.floor(Math.random() * (limit - 1) + 1);
   }
 }
 

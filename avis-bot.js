@@ -17,6 +17,7 @@ let usersStore = userStoreService.getStore();
 let userIdList = userStoreService.getUserIDsList();
 
 
+
 /**
  * Initializing the app object from the keys
  */
@@ -137,17 +138,8 @@ async function scheduleTask() {
     let currentTime = botService.formatAMPM(today).split(':');
     let openingDays = [ 1, 2, 3, 4 , 5 ];
     console.log('userIdList :: ',userIdList.length)
-    // userIdList.forEach(userId => {
-    //   if (userId === 'U1FAMB9QR') {
-    //     let user = usersStore[userId].user;
-    //     sendCheck(user);
-    //   }
-    // });
     if(openingDays.includes( today.getDay() )){
     if (botService.workingTime(currentTime)) {
-      if(userIdList.length == 0){
-        await fetchUsers();
-      }
       for (userId of userIdList){
         if(Constants.config.PROD_USERS.includes(userId)){
           let user = usersStore[userId].user;
@@ -183,28 +175,22 @@ async function scheduleTask() {
   await app.start(process.env.PORT || 3000);
   console.log('⚡️ AVIS app is awake!');
   // After the app starts, fetch users and put them in a simple, in-memory cache
-  if(userIdList.length == 0){
-    await fetchUsers();
-  }
-  for (userId of userIdList){
-    console.log('userId :: ',userId)
-    let user = usersStore[userId].user;
-    // if (!user[Constants.DELETED] && !user[Constants.IS_BOT]) {
-    // console.log('user name :: ',user.name)
-    // console.log('user profile :: status_text :: ',user.profile.status_text)
-    // console.log('user profile :: status_expiration :: ',user.profile.status_expiration)
-    // console.log('-------------------')
-    // }
-    if(Constants.config.DEV_TEST_USERS.indexOf(userId)!=-1){
-      let user = usersStore[userId].user;
-      console.log('user present in test list ',user.name)
-      await sendCheck(user);
-      console.log('before deplay :: ', new Date())
-      await delay(30 * 1000);
-      console.log('after deplay :: ', new Date())
-    }
-  }
-   //scheduleTask();
+  // if(userIdList.length == 0){
+  //   await fetchUsers();
+  // }
+  // for (userId of userIdList){
+  //   console.log('userId :: ',userId)
+  //   let user = usersStore[userId].user;
+  //   if(Constants.config.DEV_TEST_USERS.indexOf(userId)!=-1){
+  //     let user = usersStore[userId].user;
+  //     console.log('user present in test list ',user.name)
+  //     await sendCheck(user);
+  //     console.log('before deplay :: ', new Date())
+  //     await delay(30 * 1000);
+  //     console.log('after deplay :: ', new Date())
+  //   }
+  // }
+  scheduleTask();
   //  let trendYoutubeLink = await trendService.getYoutubeTrends();
   //  console.log('trendYoutubeLink :: ',trendYoutubeLink)
 })();
