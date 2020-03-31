@@ -5,13 +5,13 @@ const routineCheck = require('./src/app/pages/routine_check');
 const BotService = require('./src/app/services/bot.service');
 const UserStoreService = require('./src/app/services/userstore.service')
 const TokenService = require('./src/app/services/token.service')
-const QuoteService = require('./src/app/services/quote.service')
+const TrendService = require('./src/app/services/trends.service')
 
+const delay = require('delay');
 const botService = new BotService();
 const userStoreService = new UserStoreService();
 const tokenService = new TokenService();
-const quoteService = new QuoteService();
-
+const trendService = new TrendService();
 // You probably want to use a database to store any user information ;)
 let usersStore = userStoreService.getStore();
 let userIdList = userStoreService.getUserIDsList();
@@ -153,6 +153,9 @@ async function scheduleTask() {
           let user = usersStore[userId].user;
           console.log('user present in test list ',user.name)
           await sendCheck(user);
+          console.log('before deplay :: ', new Date())
+          await delay(30 * 1000);
+          console.log('after deplay :: ', new Date())
         }
       }
     } else {
@@ -180,17 +183,29 @@ async function scheduleTask() {
   await app.start(process.env.PORT || 3000);
   console.log('⚡️ AVIS app is awake!');
   // After the app starts, fetch users and put them in a simple, in-memory cache
- // fetchUsers();
-  // if(userIdList.length == 0){
-  //   await fetchUsers();
-  // }
-  // for (userId of userIdList){
-  //   if(Constants.config.TEST_USERS.includes(userId)){
-  //     let user = usersStore[userId].user;
-  //     console.log('user present in test list ',user.name)
-  //     await sendCheck(user);
-  //   }
-  // }
-   scheduleTask();
+  if(userIdList.length == 0){
+    await fetchUsers();
+  }
+  for (userId of userIdList){
+    console.log('userId :: ',userId)
+    let user = usersStore[userId].user;
+    // if (!user[Constants.DELETED] && !user[Constants.IS_BOT]) {
+    // console.log('user name :: ',user.name)
+    // console.log('user profile :: status_text :: ',user.profile.status_text)
+    // console.log('user profile :: status_expiration :: ',user.profile.status_expiration)
+    // console.log('-------------------')
+    // }
+    if(Constants.config.DEV_TEST_USERS.indexOf(userId)!=-1){
+      let user = usersStore[userId].user;
+      console.log('user present in test list ',user.name)
+      await sendCheck(user);
+      console.log('before deplay :: ', new Date())
+      await delay(30 * 1000);
+      console.log('after deplay :: ', new Date())
+    }
+  }
+   //scheduleTask();
+  //  let trendYoutubeLink = await trendService.getYoutubeTrends();
+  //  console.log('trendYoutubeLink :: ',trendYoutubeLink)
 })();
 

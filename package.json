@@ -13,6 +13,10 @@
   "dependencies": {
     "@slack/bolt": "^1.0.1",
     "@slack/interactive-messages": "^1.5.0",
+    "axios": "^0.19.2",
+    "delay": "^4.3.0",
+    "http": "0.0.1-security",
+    "https": "^1.0.0",
     "markdown-table": "^2.0.0",
     "node-cron": "^2.0.3",
     "node-rest-client": "^3.1.0",

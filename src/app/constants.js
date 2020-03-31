@@ -12,6 +12,10 @@ module.exports.events = {
   MESSAGE : "message"
 }
 
+module.exports.trendkeys = {
+  YOUTUBE : "AIzaSyDw3dwAC6tX7eJ-HVt7WHtRT7NSSWrrqIE"
+}
+
 module.exports.config = {
   TOKEN_EXPIRE_TIME: 5,
   AVIS_STATUS_CHANNEL_ID: 'C010LSWKG2W',

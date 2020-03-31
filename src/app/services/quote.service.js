@@ -2,13 +2,13 @@ let json = require('../quotes/quotes.json');
 
 class QuoteService {
 
-  getQuote(){
+  getQuote() {
     return json[this.randomNumber()];
   }
 
-  randomNumber() {  
-    return Math.floor(Math.random() * (5421 - 1) + 1); 
-} 
+  randomNumber() {
+    return Math.floor(Math.random() * (5421 - 1) + 1);
+  }
 }
 
 module.exports = QuoteService
