@@ -12,9 +12,6 @@ module.exports.events = {
   MESSAGE : "message"
 }
 
-module.exports.trendkeys = {
-  YOUTUBE : "AIzaSyDw3dwAC6tX7eJ-HVt7WHtRT7NSSWrrqIE"
-}
 
 module.exports.config = {
   TOKEN_EXPIRE_TIME: 5,

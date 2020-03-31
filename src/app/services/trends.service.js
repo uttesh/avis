@@ -19,7 +19,7 @@ class TrendService {
   }
 
   async getYoutubeTrends() {
-    return await axios.get('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key=' + Constants.trendkeys.YOUTUBE)
+    return await axios.get('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&chart=mostPopular&regionCode=IN&maxResults=25&key=' + process.env.YOUTUBE_API_KEY)
       .then(response => {
         let items = response.data.items;
         let randomId = items[this.randomNumber(items.length)].id;
