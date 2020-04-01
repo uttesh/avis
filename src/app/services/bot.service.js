@@ -124,9 +124,6 @@ workingTime(currentTime){
     }
   }
   if(ampm == 'pm'){
-    console.log('ampm :: ',ampm)
-    console.log('hour :: ',hour)
-    console.log('minute :: ',minute)
     if(hour == 12 || hour <= 1){
       return true;
     }

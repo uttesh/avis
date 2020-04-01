@@ -177,13 +177,12 @@ async function scheduleTask() {
       for (userId of userIdList){
         if(Constants.config.PROD_USERS.includes(userId)){
           let user = usersStore[userId].user;
-          console.log('user present in test list ',user.name)
           await sendCheck(user);
           await delay(30 * 1000);
         }
       }
     } else {
-      console.log('its not working hours,check for report generation')
+      console.log('its not working hours, check for report generation')
       if(botService.isReportTime(currentTime)){
         if(userIdList.length != 0){
           botService.sendReport(app);
@@ -192,10 +191,10 @@ async function scheduleTask() {
           console.log('report already generated')
         }
       }
-      console.log('its not working hour !!!!');
+      console.log('its not a working hour !!!');
     }
   }else {
-    console.log('its Weekend !!!!');
+    console.log('its Weekend !!!');
   }
   });
 }
