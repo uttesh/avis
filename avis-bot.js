@@ -118,9 +118,10 @@ async function saveUsers(usersArray) {
   });
 }
 
-app.message('avis:',(data) => {
- console.log('received message in channel:',data.payload.text);
- processReply(data)
+app.message('avis:',async ({ message, context }) => {
+ console.log('received message in channel:message',message.text);
+ console.log('received message in channel:context ',context);
+ processReply(message.text)
 });
 
 /**
@@ -134,23 +135,23 @@ app.error((error) => {
  * Read all the incoming message and check for the token related message (This methis need to be changes, its looking in all messages which is not good of the performance)
  */
 async function processReply(message) {
-  if (!message.subtype && message.payload 
-    && message.payload.text && message.payload.text.indexOf('avis:') >= 0) {
-    console.log('replied message :::', message.payload.text);
-    let token = message.payload.text;
+  if (message) {
+    console.log('replied message :::', message);
+    let token = message;
     let tokenObject = tokenService.getTokenDetails(token);
     console.log('tokenObject :::', tokenObject)
-    let tknMsg = message.payload.text.replace(/```/g, '');
-    console.log('tknMsg :::', tknMsg)
-    if (usersStore[tokenObject.user] && usersStore[tokenObject.user].tokenMessages) {
-      console.log('token replied by user :: ',usersStore[tokenObject.user].user.real_name)
-      if (tokenService.isValidPublishedToken(tokenObject.user, tknMsg) && usersStore[tokenObject.user].tokenMessages.indexOf(tknMsg) == -1) {
+    let tknMsg = message.replace(/```/g, '');
+    console.log('tknMsg :::', tknMsg);
+    let userObject = usersStore[tokenObject.user];
+    if (userObject && userObject.tokenMessages) {
+      console.log('token replied by user :: ',userObject.user.real_name)
+      if (tokenService.isValidPublishedToken(tokenObject.user, tknMsg) && userObject.tokenMessages.indexOf(tknMsg) == -1) {
         let flag = botService.repliedInTime(tokenObject.sentTime);
-        usersStore[tokenObject.user].tokenMessages.push(tknMsg);
-        console.log(usersStore[tokenObject.user].tokenMessages);
+        userObject.tokenMessages.push(tknMsg);
+        console.log(userObject.tokenMessages);
         try {
           if (flag) {
-            usersStore[tokenObject.user].checkedCount = usersStore[tokenObject.user].checkedCount + 1;
+            userObject.checkedCount = usersStore[tokenObject.user].checkedCount + 1;
             botService.postMessage(app, Constants.Messages.TOKEN_RECEIVED_MSG, tokenObject.user)
           } else {
             botService.postMessage(app, Constants.Messages.TOKEN_LATE_REPLY, tokenObject.user)
