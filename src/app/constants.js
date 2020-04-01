@@ -36,7 +36,8 @@ module.exports.config = {
   ],
   DEV_TEST_USERS: [
     'U1FAMB9QR' // Uttesh
-  ]
+  ],
+  MODE : "PROD"
 }
 
 

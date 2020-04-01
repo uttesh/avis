@@ -86,7 +86,7 @@ class BotService {
           token: process.env.SLACK_BOT_TOKEN,
           channel: Constants.config.AVIS_STATUS_CHANNEL_ID,
           text: ':+1:',
-          blocks: reportPanel.getReportPanel(usersStore,userIdList)
+          blocks: reportPanel.getReportPanel(usersStore,Constants.config.PROD_USERS)
         });
     } catch (error) {
       console.error(error);

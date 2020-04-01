@@ -29,9 +29,42 @@ const app = new App({
  /**
   * Do Something when user opens the bot char window
   */
-app.event(Constants.APP_HOME_OPENED, ({ event, say,payload }) => {  
+app.event('app_mentioned', ({ event, say,payload }) => {  
+  console.log('\n\n app_mentioned *************** ')
+});
+
+app.event('message.app_home', ({ event, say,payload }) => {  
+  console.log('\n\n message.app_home ************** ')
+  console.log('message.app_home::: event',event)
+  console.log('message.app_home::: ')
+});
+
+app.event('app_uninstalled', ({ event, say,payload }) => {  
+  console.log('\n\n app_uninstalled :: **************** ')
+  console.log('app_uninstalled event :: ',event)
+  console.log('app_uninstalledp payload :: ',payload)
+});
+
+app.event('app_rate_limited', ({ event, say,payload }) => {  
+  console.log('\n\n app_rate_limited **************** ')
+  console.log('app_uninstalled event :: ',event)
+  console.log('app_uninstalled payload :: ',payload)
+});
+
+app.event('message.im', ({ event, say,payload }) => {  
+  console.log('\n\n message.im ********************')
  // avisEventsHandler.appOpened(event, say,payload);
 });
+
+app.event('message.channels', ({ event, say,payload }) => {  
+  console.log('\n\n message.channels ********************')
+ // avisEventsHandler.appOpened(event, say,payload);
+});
+
+app.event(Constants.APP_HOME_OPENED, ({ event, say,payload }) => {  
+  console.log('app opend :::::::')
+  // avisEventsHandler.appOpened(event, say,payload);
+ });
 
 /**
  *  Send the Token message to the User, DM to user
@@ -47,7 +80,6 @@ async function sendCheck(user){
       token: process.env.SLACK_BOT_TOKEN,
       channel: userId,
       text: Constants.Messages.TOKEN_CHECK_MSG,
-      as_user: true,
       blocks: routineCheck.getCheckTaskRequestButton(totalCheck,user,tknMeesage)
     });
   }
@@ -86,6 +118,11 @@ async function saveUsers(usersArray) {
   });
 }
 
+app.message('avis:',(data) => {
+ console.log('received message in channel:',data.payload.text);
+ processReply(data)
+});
+
 /**
  * Any app related error will be logged here
  */
@@ -96,8 +133,9 @@ app.error((error) => {
 /**
  * Read all the incoming message and check for the token related message (This methis need to be changes, its looking in all messages which is not good of the performance)
  */
-app.event(Constants.events.MESSAGE, (message, body) => {
-  if (!message.subtype && message.payload.text.indexOf('avis:') >= 0) {
+async function processReply(message) {
+  if (!message.subtype && message.payload 
+    && message.payload.text && message.payload.text.indexOf('avis:') >= 0) {
     console.log('replied message :::', message.payload.text);
     let token = message.payload.text;
     let tokenObject = tokenService.getTokenDetails(token);
@@ -105,6 +143,7 @@ app.event(Constants.events.MESSAGE, (message, body) => {
     let tknMsg = message.payload.text.replace(/```/g, '');
     console.log('tknMsg :::', tknMsg)
     if (usersStore[tokenObject.user] && usersStore[tokenObject.user].tokenMessages) {
+      console.log('token replied by user :: ',usersStore[tokenObject.user].user.real_name)
       if (tokenService.isValidPublishedToken(tokenObject.user, tknMsg) && usersStore[tokenObject.user].tokenMessages.indexOf(tknMsg) == -1) {
         let flag = botService.repliedInTime(tokenObject.sentTime);
         usersStore[tokenObject.user].tokenMessages.push(tknMsg);
@@ -124,7 +163,7 @@ app.event(Constants.events.MESSAGE, (message, body) => {
       }
     }
   }
-});
+}
 
 async function scheduleTask() {
   cron.schedule('*/30 * * * *', async() => {
@@ -173,25 +212,37 @@ async function scheduleTask() {
   console.log('process.env.SLACK_SIGNING_SECRET : ',process.env.SLACK_SIGNING_SECRET)
   console.log('process.env.SLACK_BOT_TOKEN : ',process.env.SLACK_BOT_TOKEN)
   await app.start(process.env.PORT || 3000);
-  console.log('⚡️ AVIS app is awake!');
-  // After the app starts, fetch users and put them in a simple, in-memory cache
-  // if(userIdList.length == 0){
-  //   await fetchUsers();
-  // }
-  // for (userId of userIdList){
-  //   console.log('userId :: ',userId)
-  //   let user = usersStore[userId].user;
-  //   if(Constants.config.DEV_TEST_USERS.indexOf(userId)!=-1){
-  //     let user = usersStore[userId].user;
-  //     console.log('user present in test list ',user.name)
-  //     await sendCheck(user);
-  //     console.log('before deplay :: ', new Date())
-  //     await delay(30 * 1000);
-  //     console.log('after deplay :: ', new Date())
-  //   }
-  // }
-  scheduleTask();
-  //  let trendYoutubeLink = await trendService.getYoutubeTrends();
-  //  console.log('trendYoutubeLink :: ',trendYoutubeLink)
+  console.log('⚡️ AVIS app is awake! Running in: '+Constants.config.MODE+" Mode");
+
+  if(Constants.config.MODE === 'DEV'){
+    development()
+  }else{
+    production()
+  }
 })();
+
+async function development(){
+  //After the app starts, fetch users and put them in a simple, in-memory cache
+  if(userIdList.length == 0){
+    await fetchUsers();
+  }
+  for (userId of userIdList){
+    console.log('userId :: ',userId)
+    let user = usersStore[userId].user;
+    if(Constants.config.DEV_TEST_USERS.indexOf(userId)!=-1){
+      let user = usersStore[userId].user;
+      console.log('user present in test list ',user.name)
+      await sendCheck(user);
+      console.log('before deplay :: ', new Date())
+      await delay(30 * 1000);
+      console.log('after deplay :: ', new Date())
+    }
+  }
+}
+
+async function production(){
+  scheduleTask();
+    //  let trendYoutubeLink = await trendService.getYoutubeTrends();
+  //  console.log('trendYoutubeLink :: ',trendYoutubeLink)
+}
 
