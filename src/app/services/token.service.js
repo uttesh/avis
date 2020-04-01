@@ -13,15 +13,11 @@ class TokenService{
   }
 
   isValidPublishedToken(user, token) {
-    console.log('isValidPublishedToken :: token :'+token+"::::::::")
+    console.log('isValidPublishedToken :: token :'+token)
     if (token) {
       let data = this.getTokenDetails(token);
-      console.log('isValidPublishedToken :: user : ', user)
-      console.log('isValidPublishedToken :: data.user : ', data.user)
-      console.log('isValidPublishedToken :: publishedToken : ', publishedToken)
-      console.log('publishedToken.indexOf(token) : ', publishedToken.indexOf(token.toString()))
       if (publishedToken.indexOf(token.toString().trim()) >=0 && data.user === user) {
-        console.log('its valid token:::')
+        console.log('its valid token !!!')
         return true;
       }
     }

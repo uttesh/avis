@@ -17,7 +17,6 @@ class BotService {
     const id = crypto.randomBytes(16).toString("hex");
     const time = Date.now();
     let token = "avis:"+user+":"+time+":"+id;
-    console.log('token text: ',token)
     tokenService.addToken(token)
     return token
   }
@@ -43,16 +42,15 @@ class BotService {
    */
   repliedInTime(sentTime) {
     let now = new Date();
-    console.log('now :: ', now)
-    console.log('sent time input::' + sentTime.trim() + ':::')
     let sendTime = new Date(parseInt(sentTime, 10));
-    console.log('sendTime :: ', sendTime)
     let CONFIG_MIN = Constants.config.TOKEN_EXPIRE_TIME * 60 * 1000;
-    console.log('CONFIG_MIN minutes :: ', CONFIG_MIN)
-    console.log('differnce :: ', (now - sendTime))
     if ((now - sendTime) > CONFIG_MIN) {
+      console.log('current time: '+now+', sendTime: ', sendTime)
       console.log('Delayed by more than '+Constants.config.TOKEN_EXPIRE_TIME+' mins');
+      console.log('elapsed time: ', (now - sendTime))
       return false;
+    }else{
+      console.log('Replied with in the time range !!!')
     }
     return true;
   }

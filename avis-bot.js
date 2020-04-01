@@ -120,7 +120,6 @@ async function saveUsers(usersArray) {
 
 app.message('avis:',async ({ message, context }) => {
  console.log('received message in channel:message',message.text);
- console.log('received message in channel:context ',context);
  processReply(message.text)
 });
 
@@ -136,19 +135,15 @@ app.error((error) => {
  */
 async function processReply(message) {
   if (message) {
-    console.log('replied message :::', message);
     let token = message;
     let tokenObject = tokenService.getTokenDetails(token);
-    console.log('tokenObject :::', tokenObject)
     let tknMsg = message.replace(/```/g, '');
-    console.log('tknMsg :::', tknMsg);
     let userObject = usersStore[tokenObject.user];
     if (userObject && userObject.tokenMessages) {
       console.log('token replied by user :: ',userObject.user.real_name)
       if (tokenService.isValidPublishedToken(tokenObject.user, tknMsg) && userObject.tokenMessages.indexOf(tknMsg) == -1) {
         let flag = botService.repliedInTime(tokenObject.sentTime);
         userObject.tokenMessages.push(tknMsg);
-        console.log(userObject.tokenMessages);
         try {
           if (flag) {
             userObject.checkedCount = usersStore[tokenObject.user].checkedCount + 1;
@@ -177,7 +172,6 @@ async function scheduleTask() {
     console.log('day of the week : ',today.getDay())
     let currentTime = botService.formatAMPM(today).split(':');
     let openingDays = [ 1, 2, 3, 4 , 5 ];
-    console.log('userIdList :: ',userIdList.length)
     if(openingDays.includes( today.getDay() )){
     if (botService.workingTime(currentTime)) {
       for (userId of userIdList){
@@ -185,9 +179,7 @@ async function scheduleTask() {
           let user = usersStore[userId].user;
           console.log('user present in test list ',user.name)
           await sendCheck(user);
-          console.log('before deplay :: ', new Date())
           await delay(30 * 1000);
-          console.log('after deplay :: ', new Date())
         }
       }
     } else {
@@ -197,7 +189,7 @@ async function scheduleTask() {
           botService.sendReport(app);
           userStoreService.resetAll();
         }else{
-          console.log('report laready generated')
+          console.log('report already generated')
         }
       }
       console.log('its not working hour !!!!');
@@ -223,20 +215,14 @@ async function scheduleTask() {
 })();
 
 async function development(){
-  //After the app starts, fetch users and put them in a simple, in-memory cache
   if(userIdList.length == 0){
     await fetchUsers();
   }
   for (userId of userIdList){
-    console.log('userId :: ',userId)
-    let user = usersStore[userId].user;
     if(Constants.config.DEV_TEST_USERS.indexOf(userId)!=-1){
       let user = usersStore[userId].user;
-      console.log('user present in test list ',user.name)
       await sendCheck(user);
-      console.log('before deplay :: ', new Date())
       await delay(30 * 1000);
-      console.log('after deplay :: ', new Date())
     }
   }
 }
