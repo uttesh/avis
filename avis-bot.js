@@ -134,7 +134,9 @@ app.error((error) => {
  * Read all the incoming message and check for the token related message (This methis need to be changes, its looking in all messages which is not good of the performance)
  */
 async function processReply(message) {
+  console.log('processReply :: message: ',message)
   if (message) {
+    console.log('inside if loop')
     let token = message;
     let tokenObject = tokenService.getTokenDetails(token);
     let tknMsg = message.replace(/```/g, '');

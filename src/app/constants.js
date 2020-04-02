@@ -40,6 +40,12 @@ module.exports.config = {
   MODE : "PROD"
 }
 
+module.exports.bot.replies = {
+  TOKEN_RESPONSE_REPLIES :[
+      "Enjoy Your Life – Let Your Laptop Do all the Work"
+  ]
+}
+
 
 
 module.exports.Messages = {
