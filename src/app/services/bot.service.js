@@ -27,11 +27,14 @@ class BotService {
    * @param {Message} msg 
    * @param {user or channel} target 
    */
-  postMessage(app,msg,target){
+  postMessage(app,msg,target,messageObj){
     app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: target,
       text: msg,
+      ts: messageObj.payload.ts,
+      type: "message",
+      subtype: "bot_message",
       as_user: true
     });
   } 

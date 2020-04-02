@@ -118,9 +118,9 @@ async function saveUsers(usersArray) {
   });
 }
 
-app.message('avis:',async ({ message, context }) => {
- console.log('received message in channel:message',message.text);
- processReply(message.text)
+app.message('avis:',async (message) => {
+ console.log('received message in channel:message',message);
+ processReply(message)
 });
 
 /**
@@ -136,10 +136,9 @@ app.error((error) => {
 async function processReply(message) {
   console.log('processReply :: message: ',message)
   if (message) {
-    console.log('inside if loop')
-    let token = message;
+    let token = message.payload.text;
     let tokenObject = tokenService.getTokenDetails(token);
-    let tknMsg = message.replace(/```/g, '');
+    let tknMsg = token.replace(/```/g, '');
     let userObject = usersStore[tokenObject.user];
     if (userObject && userObject.tokenMessages) {
       console.log('token replied by user :: ',userObject.user.real_name)
@@ -149,15 +148,15 @@ async function processReply(message) {
         try {
           if (flag) {
             userObject.checkedCount = usersStore[tokenObject.user].checkedCount + 1;
-            botService.postMessage(app, Constants.Messages.TOKEN_RECEIVED_MSG, tokenObject.user)
+            botService.postMessage(app, Constants.Messages.TOKEN_RECEIVED_MSG, tokenObject.user,message)
           } else {
-            botService.postMessage(app, Constants.Messages.TOKEN_LATE_REPLY, tokenObject.user)
+            botService.postMessage(app, Constants.Messages.TOKEN_LATE_REPLY, tokenObject.user,message)
           }
         } catch (error) {
           console.error(error);
         }
       } else {
-        botService.postMessage(app, Constants.Messages.TOKEN_RE_SUBMIT, tokenObject.user)
+        botService.postMessage(app, Constants.Messages.TOKEN_RE_SUBMIT, tokenObject.user,message)
       }
     }
   }
@@ -216,6 +215,7 @@ async function scheduleTask() {
 })();
 
 async function development(){
+  console.log('DEV')
   if(userIdList.length == 0){
     await fetchUsers();
   }
