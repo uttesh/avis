@@ -35,9 +35,10 @@ module.exports.config = {
     'UK9M16E64'  // Shobha Katagi
   ],
   DEV_TEST_USERS: [
-    'U1FAMB9QR' // Uttesh
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
   ],
-  MODE : "PROD"
+  MODE : "DEV"
 }
 
 

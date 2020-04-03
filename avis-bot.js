@@ -119,7 +119,7 @@ async function saveUsers(usersArray) {
 }
 
 app.message('avis:',async (message) => {
- console.log('received message in channel:message',message);
+ //console.log('received message in channel:message: ',message);
  processReply(message)
 });
 
@@ -134,7 +134,6 @@ app.error((error) => {
  * Read all the incoming message and check for the token related message (This methis need to be changes, its looking in all messages which is not good of the performance)
  */
 async function processReply(message) {
-  console.log('processReply :: message: ',message)
   if (message) {
     let token = message.payload.text;
     let tokenObject = tokenService.getTokenDetails(token);
@@ -149,13 +148,16 @@ async function processReply(message) {
           if (flag) {
             userObject.checkedCount = usersStore[tokenObject.user].checkedCount + 1;
             botService.postMessage(app, Constants.Messages.TOKEN_RECEIVED_MSG, tokenObject.user,message)
+            //await message.say(Constants.Messages.TOKEN_RECEIVED_MSG);
           } else {
+            //await message.say(Constants.Messages.TOKEN_LATE_REPLY);
             botService.postMessage(app, Constants.Messages.TOKEN_LATE_REPLY, tokenObject.user,message)
           }
         } catch (error) {
           console.error(error);
         }
       } else {
+        //await message.say(Constants.Messages.TOKEN_RE_SUBMIT);
         botService.postMessage(app, Constants.Messages.TOKEN_RE_SUBMIT, tokenObject.user,message)
       }
     }
@@ -214,18 +216,23 @@ async function scheduleTask() {
   }
 })();
 
+async function devSchedule(){
+  cron.schedule('*/1 * * * *', async() => {
+    if(userIdList.length == 0){
+       await fetchUsers();
+     }
+     for (userId of userIdList){
+       if(Constants.config.DEV_TEST_USERS.includes(userId)){
+         let user = usersStore[userId].user;
+         await sendCheck(user);
+         await delay(10 * 1000);
+       }
+     }
+ });
+}
+
 async function development(){
-  console.log('DEV')
-  if(userIdList.length == 0){
-    await fetchUsers();
-  }
-  for (userId of userIdList){
-    if(Constants.config.DEV_TEST_USERS.indexOf(userId)!=-1){
-      let user = usersStore[userId].user;
-      await sendCheck(user);
-      await delay(30 * 1000);
-    }
-  }
+  devSchedule();
 }
 
 async function production(){
