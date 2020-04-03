@@ -37,6 +37,22 @@ module.exports.config = {
   DEV_TEST_USERS: [
     'U1FAMB9QR', // Uttesh
     'U7LG4ADM5', // Raghavendra
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5', // Raghavendra
+    'U1FAMB9QR', // Uttesh
+    'U7LG4ADM5' // Raghavendra
   ],
   MODE : "DEV"
 }
