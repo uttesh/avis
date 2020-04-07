@@ -80,6 +80,7 @@ async function sendCheck(user){
       token: process.env.SLACK_BOT_TOKEN,
       channel: userId,
       text: Constants.Messages.TOKEN_CHECK_MSG,
+      as_user: false,
       blocks: routineCheck.getCheckTaskRequestButton(totalCheck,user,tknMeesage)
     });
   }
@@ -147,18 +148,18 @@ async function processReply(message) {
         try {
           if (flag) {
             userObject.checkedCount = usersStore[tokenObject.user].checkedCount + 1;
-            botService.postMessage(app, Constants.Messages.TOKEN_RECEIVED_MSG, tokenObject.user,message)
-            //await message.say(Constants.Messages.TOKEN_RECEIVED_MSG);
+            //botService.postMessage(app, Constants.Messages.TOKEN_RECEIVED_MSG, tokenObject.user,message)
+            await message.say(Constants.Messages.TOKEN_RECEIVED_MSG);
           } else {
-            //await message.say(Constants.Messages.TOKEN_LATE_REPLY);
-            botService.postMessage(app, Constants.Messages.TOKEN_LATE_REPLY, tokenObject.user,message)
+            await message.say(Constants.Messages.TOKEN_LATE_REPLY);
+            //botService.postMessage(app, Constants.Messages.TOKEN_LATE_REPLY, tokenObject.user,message)
           }
         } catch (error) {
           console.error(error);
         }
       } else {
-        //await message.say(Constants.Messages.TOKEN_RE_SUBMIT);
-        botService.postMessage(app, Constants.Messages.TOKEN_RE_SUBMIT, tokenObject.user,message)
+        await message.say(Constants.Messages.TOKEN_RE_SUBMIT);
+        //botService.postMessage(app, Constants.Messages.TOKEN_RE_SUBMIT, tokenObject.user,message)
       }
     }
   }
