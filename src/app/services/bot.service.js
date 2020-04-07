@@ -35,7 +35,7 @@ class BotService {
       ts: messageObj.payload.ts,
       type: "message",
       subtype: "bot_message",
-      as_user: true
+      as_user: false
     });
   } 
   
