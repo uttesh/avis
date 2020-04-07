@@ -217,7 +217,7 @@ async function scheduleTask() {
 })();
 
 async function devSchedule(){
-  cron.schedule('*/1 * * * *', async() => {
+  cron.schedule('*/5 * * * *', async() => {
     if(userIdList.length == 0){
        await fetchUsers();
      }
